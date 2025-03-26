@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Testing trapline display</title>
+	<title>NZ Trap data display example</title>
 	 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
      crossorigin=""/>
@@ -21,24 +21,12 @@
 	 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
      	integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
      	crossorigin=""></script>
-	 <script src="jquery-3.7.1.min.js"></script>
+	 <script src="scripts/jquery-3.7.1.min.js"></script>
+	 <script src="scripts/trapNZDataHelper.js"></script>
 	 <script>
 
-		// specifies where out data is coming from
-		// you can use direct from the API if you don't mind exposing your API key in the javascript
-		//let trapLineJson = "https://io.trap.nz/geo/trapnz-projects/wfs/[apikey]/[projectkey]?service=WFS&version=1.0.0&request=GetFeature&typeName=default-project-lines&outputFormat=application/json";
-		//let trapJson = "https://io.trap.nz/geo/trapnz-projects/wfs/[apikey]/[projectkey]?service=WFS&version=1.0.0&request=GetFeature&typeName=default-project-traps&outputFormat=application/json";
-		let trapLineJson = "trapline.json";
-		let trapJson = "traps.json";
-
-		// determines what each type of trap is trying to catch
-		let ratTraps = ["A24"];
-		let mustelidTraps = ["DOC 200", "DOC 250","Rewild F-bomb", "BT 200"];
-		let possumTraps = ["Possum Master", "Warrior", "Sentinel"];
-		let catTraps = ["SA Cat"]
-
 		// setup our map - center it on the Kaitake ranges
-		var map = L.map('map').setView([-39.161479, 173.968334], 13);
+		var map = L.map('map').setView([-39.161479, 173.968334], 14);
 
 		// L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		// 	maxZoom: 19,
@@ -52,118 +40,20 @@
             maxZoom: 19
         }).addTo(map);;
 
-		// show the traplines on the map
-		$.getJSON( trapLineJson, function( data ) {
-			L.geoJSON(data, {
-				style: function (feature) {
-					return {color: feature.properties.colour};
-				},
-				onEachFeature : function (feature, layer) {
-					layer.on('click', function() { 
-						alert("The line name is " + layer.feature.properties.line);
-					});
-				}
-				}).addTo(map);
-		});
-
-		// setup the various icons we want to display for traps
-		let iconSize = map.getZoom() + 20;
-
-		let stoatIconTemplate = L.Icon.extend({
-						options: {
-							iconUrl: 'ICON_Stoat.png',
-							iconSize: [iconSize, iconSize],
-							iconAnchor: [iconSize/2, iconSize/2]
-						}
-					});
-		let stoatIcon = new stoatIconTemplate();
-		let ratIconTemplate = L.Icon.extend({
-						options: {
-							iconUrl: 'ICON_Rat.png',
-							iconSize: [iconSize, iconSize],
-							iconAnchor: [iconSize/2, iconSize/2]
-						}
-					});
-		let ratIcon = new ratIconTemplate();
-		let possumIconTemplate = L.Icon.extend({
-						options: {
-							iconUrl: 'ICON_Possum.png',
-							iconSize: [iconSize, iconSize],
-							iconAnchor: [iconSize/2, iconSize/2]
-						}
-					});
-		let possumIcon = new possumIconTemplate();
-		let catIconTemplate = L.Icon.extend({
-						options: {
-							iconUrl: 'ICON_Cat.png',
-							iconSize: [iconSize, iconSize],
-							iconAnchor: [iconSize/2, iconSize/2]
-						}
-					});
-		let catIcon = new catIconTemplate();
-		let unknownIconTemplate = L.Icon.extend({
-						options: {
-							iconUrl: 'ICON_Unknown.png',
-							iconSize: [iconSize, iconSize],
-							iconAnchor: [iconSize/2, iconSize/2]
-						}
-					});
-		let unknownIcon = new unknownIconTemplate();
+		// specifies where out data is coming from
+		// you can use direct from the API if you don't mind exposing your API key in the javascript
+		//let trapLineJsonUrl = "https://io.trap.nz/geo/trapnz-projects/wfs/[apikey]/[projectkey]?service=WFS&version=1.0.0&request=GetFeature&typeName=default-project-lines&outputFormat=application/json";
+		//let trapJsonUrl = "https://io.trap.nz/geo/trapnz-projects/wfs/[apikey]/[projectkey]?service=WFS&version=1.0.0&request=GetFeature&typeName=default-project-traps&outputFormat=application/json";
+		let trapLineJsonUrl = "data/trapline.json";
+		let trapJsonUrl = "data/traps.json";
 
 
-		// show the traps on the map
-		$.getJSON( trapJson, function( data ) {
-			L.geoJSON(data, {
-				filter : function(feature) {
-					// don't include retired traps
-					return feature.properties.retired == 0;
-				},
-				onEachFeature : function (feature, layer) {
-					// determine which icon we want
-					if(possumTraps.includes(layer.feature.properties.trap_type)) {
-						layer.setIcon(possumIcon);
-					} else if(mustelidTraps.includes(layer.feature.properties.trap_type)) {
-						layer.setIcon(stoatIcon);
-					} else if(ratTraps.includes(layer.feature.properties.trap_type)) {
-						layer.setIcon(ratIcon);
-					} else if(catTraps.includes(layer.feature.properties.trap_type)) {
-						layer.setIcon(catIcon);
-					} else {
-						console.log("We don't have an icon for this type of trap: " + layer.feature.properties.trap_type);
-						layer.setIcon(unknownIcon);
-					}
-
-					const installedDate = Date.parse(layer.feature.properties.date_installed);
-					const displayDate = new Date(installedDate).toLocaleDateString();
-					layer.bindPopup("This is trap '" + layer.feature.properties.code + "'', it's a " + layer.feature.properties.trap_type + 
-							" trap installed by " + layer.feature.properties.installed_by + " on " + displayDate)
-
-					// layer.on('click', function() { 
-					// 	const installedDate = Date.parse(layer.feature.properties.date_installed);
-					// 	const displayDate = new Date(installedDate).toLocaleDateString();
-						
-					// 	alert("This is trap '" + layer.feature.properties.code + "'', it's a " + layer.feature.properties.trap_type + 
-					// 		" trap installed by " + layer.feature.properties.installed_by + " on " + displayDate);
-					// });
-				}
-			}).addTo(map);
-		});
+		trapNZDataHelper.showTrapLines(map, trapLineJsonUrl);
+		trapNZDataHelper.showTrapIcons(map, trapJsonUrl);
 
 		// **** map event handlers ****
-
 		map.on('zoomend', function() {
-			// when zoomed we want to change the marker/icon sizes
-			iconSize = map.getZoom() + 20
-
-			map.eachLayer(function(layer){
-				if(layer.feature && layer.feature.geometry && layer.feature.geometry.type === "Point") {
-					var icon = layer.options.icon;
-					icon.options.iconSize = [iconSize, iconSize];
-					icon.options.iconAnchor = [iconSize / 2,iconSize / 2]
-					layer.setIcon(icon);
-				}
-			});
-
+			trapNZDataHelper.resizeTrapIconsOnZoom(map);
 		});
 
 		map.on('click', function(e) {

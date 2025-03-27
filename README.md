@@ -12,8 +12,8 @@ https://trapnzdata.netlify.app/
 
 You can view the index.html in this repository for a working example.
 
-* Show the leaflet map as per normal (https://leafletjs.com/examples/quick-start/)
-* Include TrapNZDataHelper.js on the page (and if you don't ready have it also include jquery)
+* Show the leaflet map as per normal ([leaflet quick start](https://leafletjs.com/examples/quick-start/) or look at the index file in this repository)
+* Include TrapNZDataHelper.js on the page (and if you don't ready have it also include jquery - both are in the scripts folder of this repository)
 
 ```
 <script src="scripts/jquery-3.7.1.min.js"></script>

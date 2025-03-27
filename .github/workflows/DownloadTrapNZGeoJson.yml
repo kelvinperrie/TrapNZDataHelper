@@ -1,0 +1,36 @@
+name: Download Trap.nz geojson
+
+# downloads json data from the trap.nz API and stores it in the 'data' folder
+# API_KEY and PROJECT_KEY must be setup as secrets in the repository
+# Trap NZ API Url and details on key and project can be found from https://help.trap.nz/books/trapnz-comprehensive-user-guide/chapter/map-feeds
+
+on:
+  # schedule for 6pm UTC, which is 7am NZ
+  schedule:
+    - cron: '0 18 * * *'
+  # allows for manually workflow runs
+  workflow_dispatch:
+
+jobs:
+  run:
+    name: "Download all geojson"
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: wow-actions/download-upload@v1
+        name: Download trap json
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          url: ${{ format('https://io.trap.nz/geo/trapnz-projects/wfs/{0}/{1}?service=WFS&version=1.0.0&request=GetFeature&typeName=default-project-traps&outputFormat=application/json', secrets.API_KEY, secrets.PROJECT_KEY) }}
+          dir: data
+          filename: traps.json
+
+      - uses: wow-actions/download-upload@v1
+        name: Download trapline json
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          url: ${{ format('https://io.trap.nz/geo/trapnz-projects/wfs/{0}/{1}?service=WFS&version=1.0.0&request=GetFeature&typeName=default-project-lines&outputFormat=application/json', secrets.API_KEY, secrets.PROJECT_KEY) }}
+          dir: data
+          filename: trapline.json

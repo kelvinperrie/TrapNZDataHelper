@@ -40,6 +40,8 @@ trapNZDataHelper.showTrapIcons(map, trapJsonUrl);
 
 Rather than directly getting data from the trap.nz API in javascript, which will expose your API key so that others might use or abuse it, you can create a github action to download the data on a schedule. There is action in this repository called 'DownloadTrapNZGeoJson.yml' that does that. For this action to work you need to put your project key and api key as secrets (details here https://help.trap.nz/books/trapnz-comprehensive-user-guide/chapter/map-feeds) in the repository.
 
+This indicates if the scheduled data download is working:  
+[![Download Trap.nz geojson](https://github.com/kelvinperrie/TrapNZDataHelper/actions/workflows/DownloadTrapNZGeoJson.yml/badge.svg)](https://github.com/kelvinperrie/TrapNZDataHelper/actions/workflows/DownloadTrapNZGeoJson.yml)
 
 
 
